@@ -1,0 +1,217 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<style type="text/css">
+        #map {
+			width: 100%;
+			height: 500px;
+		}
+
+		.info {
+			padding: 6px 8px;
+			font: 14px/16px Arial, Helvetica, sans-serif;
+			background: white;
+			background: rgba(255,255,255,0.8);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+            height: 150px;
+		}
+		.info h4 {
+			margin: 0 0 5px;
+			color: black;
+		}
+
+		.legend {
+			text-align: left;
+			line-height: 18px;
+			color: #555;
+		}
+		.legend i {
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			opacity: 0.7;
+		}
+	</style>
+	
+	<!-- bootsrap cdn-->
+	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+	
+	
+	<!--Leaflet code-->
+	<link rel="stylesheet" href="/leaflet.css" /> 
+	<script src="/leaflet.js"></script>
+	<!--end leaflet code-->
+	
+	<!-- mapbox js-->
+	<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+
+    <!--Businesses geojson ---> 
+    <script src = "geoJSON/oldSiliconValley.js"></script>
+	
+	<!--Plumes geojson-->
+	<script src="geoJSON/groundwaterPlume.js"></script>
+	
+    <!--daycare geojson-->
+    <script src="geoJSON/daycare.js"></script>
+    
+    <!--  JQUERY-->
+    <script src = "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    
+    <!-- ICONS-->
+    <link rel="stylesheet" href="leaflet.extra-markers.css">
+    <script src="leaflet.extra-markers.js"></script>
+
+
+            
+	<meta charset="utf-8">
+	<title>
+		Silicon Valley 6
+	</title>
+</head>
+<body>
+<div class = "container">
+	<div class = "row">
+		<div class = "col-xs-12">
+			<h1>The Chemical Legacy of Old Silicon Valley</h1>
+			<p>Here is a paragraph introing my thing.</p>
+			<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius. Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum. Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.</p>
+		
+			<div id="map"></div>
+		</div>
+	</div>
+</div>
+
+
+<div id="content"></div>
+
+<!--Set Tile Layer-->
+<script type="text/javascript">
+	
+    //Daycare Icon
+    var daycareIcon = L.ExtraMarkers.icon({
+        icon: 'glyphicon-home',
+        markerColor: 'red',
+        shape: 'circle',
+        prefix: 'glyphicon'
+    });
+    
+    var companyIcon = L.ExtraMarkers.icon({
+        icon: 'fa-laptop',
+        markerColor: 'blue',
+        shape: 'circle',
+        prefix: 'fa'
+    })
+
+
+	//bind popup data
+	function onEachPlume(feature, layer) {
+        layer.bindPopup('<h4>Groundwater Plume</h4>' + (
+            (feature.properties.sitename)? '<p><strong>Name: ' + feature.properties.sitename + '</strong></p>': '')
+             + '<p><em>The groundwater and soil here may contain chemicals hazardous to your health and safety.</em></p>' + (
+                 (feature.properties.plumeurl)? '<p>The State Water Resources Control Board has <a href="' + feature.properties.plumeurl + '" target="_blank">more information</a> about this specific plume.</p>':'')
+              + '<small>Data courtesy of <a href = "http://www.terradex.com/">Terradex.</a></small>');
+    };
+    
+    //bind companies data to popups
+    function onEachCompany(feature, layer) {
+        layer.bindPopup("<h4>Old Tech Company Facility (circa 1983) </h4><p><strong>Name: " + feature.id + " </strong></p> <p>Address: " + feature.properties.address + "</p> <p><small>Data from The Atlantic's <a href='http://www.theatlantic.com/technology/archive/2013/07/not-even-silicon-valley-escapes-history/277824/' target='_blank'>Not Even Silicon Valley Escapes History.</a></strong></p>");  
+    };
+    
+    //bind daycare data to popups
+    function onEachDaycare(feature, layer) {
+        layer.bindPopup("<h4>Daycare Facility</h4><p><strong>Name: " + feature.properties._facilit_4 + ".</strong></p><p><small>Data from California Department of Social Services via <a href='LINK'>Terradex.</a>");
+    }
+    
+	
+	//style plume borders
+	var plumeStyle = {
+    "color": "purple",
+    "weight": 3,
+    "opacity": 0.8
+};
+	
+	//initialize geoJson layer for plumes
+	var plumeLayer = L.geoJson(plumes, {
+		style: plumeStyle,
+		onEachFeature: onEachPlume
+		
+	});
+    
+    //initialize geoJSON layer for companies
+    var companyLayer = L.geoJson(companies, {
+       // style: myStyle,
+        onEachFeature: onEachCompany
+    });
+
+ var daycareLayer = L.geoJson(daycares, {
+        pointToLayer: function(feature, latLng){
+            return new L.Marker(latLng, {
+                icon: daycareIcon
+            });
+        },
+        onEachFeature: onEachDaycare
+    }); 
+    
+		
+		
+	//keys are the text that show up in the control, values are the layergroup vars
+	var overlayMaps = {
+		"Tech Companies Circa 1983": companyLayer,
+		"Plumes": plumeLayer,
+        "Daycare Facilities": daycareLayer
+		};
+		
+		
+		
+		//sets map to mountain view
+	var map = L.map('map', {
+		scrollWheelZoom:false,
+		layers: [plumeLayer]
+		}).setView([37.400819, -122.091567], 13);
+            
+	//map tile from mapbox
+	L.mapbox.tileLayer('scottpham.i4aoobc5', {
+    attribution: 'Powered by Leaflet, Tiles from MapBox. Environmental data compiled by Terradex from government sources.'
+}).addTo(map);
+
+         //creates a "control" layer composed of the companies layer
+        
+	var layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
+    
+    
+    /*  BEGIN CUSTOM TEXT CONTROL
+    layerControl.onAdd = function(map) {
+        this._div = L.DomUtil.create('div', 'info');
+        this.update();
+        return this._div;  
+    };
+    
+    layerControl.update = function (props) {
+        this._div.innerHTML = '<h4>Click to reveal different layers.</h4>';
+    }
+    
+   layerControl.addTo(map);
+    */
+   
+   L.control.layers(null, overlayMaps, {collapsed: false}).addTo(map);
+    
+   newItem = document.createElement("H4");
+   newText = document.createTextNode("Click to select new map layers");
+   newItem.appendChild(newText);
+   x = document.getElementsByClassName("leaflet-control-layers-overlays");
+   x[0].insertBefore(newItem, x[0].firstChild);
+       
+        
+      
+</script>
+
+	
+
+
+
+</body>
+</html>
+
+
