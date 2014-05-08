@@ -4,7 +4,7 @@
 	<style type="text/css">
         #map {
 			width: 100%;
-			height: 500px;
+			height: 700px;
 		}
 
 		.info {
@@ -37,11 +37,13 @@
 	
 	<!-- bootsrap cdn-->
 	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
 	
 	
 	<!--Leaflet code-->
-	<link rel="stylesheet" href="/leaflet.css" /> 
-	<script src="/leaflet.js"></script>
+	<link rel="stylesheet" href="leaflet.css" /> 
+	<script src="leaflet.js"></script>
 	<!--end leaflet code-->
 	
 	<!-- mapbox js-->
@@ -56,8 +58,8 @@
     <!--daycare geojson-->
     <script src="geoJSON/daycare.js"></script>
     
-    <!--  JQUERY-->
-    <script src = "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!--  
+    <script src = "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> JQUERY-->
     
     <!-- ICONS-->
     <link rel="stylesheet" href="leaflet.extra-markers.css">
@@ -75,22 +77,29 @@
 	<div class = "row">
 		<div class = "col-xs-12">
 			<h1>The Chemical Legacy of Old Silicon Valley</h1>
-			<p>This plume map interactively shows the sites of toxic chemical plumes in Santa Clara County, CA. Toxic chemicals left by old Silicon Valley companies in the 1980s still remain in the earth. Some of those chemicals are still slowly rising through the soil and groundwater via a process called vapor intrusion. </p>
-            <p>The purple shapes represent areas of vapor intrusion. An environmental nonprofit called Terradex has calculated the geometry of these vapor intrusion sites using government data from the California Water Resources Control Board and the Environmental Protection Agency. Click the shapes for more information and toggle the layers to see the historical locations of old Silicon Valley companies circa 1983.</p>
-			
-		
+			<p>This map shows the sites of toxic chemical "plumes" in Santa Clara County, CA. Toxic chemicals left by old Silicon Valley companies in the 1980s still remain in the earth. Some of those chemicals are still slowly rising through the soil and groundwater via a process called vapor intrusion. </p>
+            <p>The purple shapes represent areas of vapor intrusion. An environmentally-focused technology company called Terradex has calculated the geometry of these vapor intrusion sites using government data from a number of government agencies including the California Water Resources Control Board and the Environmental Protection Agency. Click the shapes for more information and toggle the layers to see the historical locations of old Silicon Valley companies from the era that produces many of these sites.</p>
 			<div id="map"></div>
 		</div>
 	</div>
 </div>
 
 
-<div id="content"></div>
 
-<!--Set Tile Layer-->
+
 <script type="text/javascript">
 	
-    //Daycare Icon
+    //company icons
+    
+     var companyIcon = L.ExtraMarkers.icon({
+        icon: 'fa-laptop',
+        markerColor: 'cyan',
+        shape: 'square',
+        prefix: 'fa'
+    });
+    
+    //companyIcon.extend()
+   //Daycare Icon
     var daycareIcon = L.ExtraMarkers.icon({
         icon: 'glyphicon-home',
         markerColor: 'red',
@@ -98,12 +107,7 @@
         prefix: 'glyphicon'
     });
     
-    var companyIcon = L.ExtraMarkers.icon({
-        icon: 'fa-laptop',
-        markerColor: 'blue',
-        shape: 'circle',
-        prefix: 'fa'
-    })
+   
 
 
 	//bind popup data
@@ -112,17 +116,17 @@
             (feature.properties.sitename)? '<p><strong>Name: ' + feature.properties.sitename + '</strong></p>': '')
              + '<p><em>The groundwater and soil here may contain chemicals hazardous to your health and safety.</em></p>' + (
                  (feature.properties.plumeurl)? '<p>The State Water Resources Control Board has <a href="' + feature.properties.plumeurl + '" target="_blank">more information</a> about this specific plume.</p>':'')
-              + '<small>Data courtesy of <a href = "http://www.terradex.com/">Terradex.</a></small>');
+              + '<small>Data courtesy of <a href="http://whatsdown.terradex.com/" target="_blank">Terradex.</a></small>');
     };
     
     //bind companies data to popups
     function onEachCompany(feature, layer) {
-        layer.bindPopup("<h4>Old Tech Company Facility (circa 1983) </h4><p><strong>Name: " + feature.id + " </strong></p> <p>Address: " + feature.properties.address + "</p> <p><small>Data from The Atlantic's <a href='http://www.theatlantic.com/technology/archive/2013/07/not-even-silicon-valley-escapes-history/277824/' target='_blank'>Not Even Silicon Valley Escapes History.</a></strong></p>");  
+        layer.bindPopup("<h4>Old Tech Company (circa 1983) </h4><p><strong>Name: " + feature.id + " </strong></p> <p>Address: " + feature.properties.address + "</p> <p><small>Data from The Atlantic's <a href='http://www.theatlantic.com/technology/archive/2013/07/not-even-silicon-valley-escapes-history/277824/' target='_blank'>Not Even Silicon Valley Escapes History.</a></strong></p>");  
     };
     
     //bind daycare data to popups
     function onEachDaycare(feature, layer) {
-        layer.bindPopup("<h4>Daycare Facility</h4><p><strong>Name: " + feature.properties._facilit_4 + ".</strong></p><p><small>Data from California Department of Social Services via <a href='LINK'>Terradex.</a>");
+        layer.bindPopup("<h4>Daycare Facility</h4><p><strong>Name: " + feature.properties._facilit_4 + ".</strong></p><p><small>Data from the <a href='http://www.cdss.ca.gov/cdssweb/' target='_blank'>California Department of Social Services</a> via <a href='http://whatsdown.terradex.com/' target='_blank'>Terradex.</a>");
     }
     
 	
@@ -142,11 +146,15 @@
     
     //initialize geoJSON layer for companies
     var companyLayer = L.geoJson(companies, {
-       // style: myStyle,
+        pointToLayer: function(feature, latLng){
+            return new L.Marker(latLng, {
+                icon: companyIcon
+            });
+        },
         onEachFeature: onEachCompany
     });
 
- var daycareLayer = L.geoJson(daycares, {
+     var daycareLayer = L.geoJson(daycares, {
         pointToLayer: function(feature, latLng){
             return new L.Marker(latLng, {
                 icon: daycareIcon
@@ -159,8 +167,8 @@
 		
 	//keys are the text that show up in the control, values are the layergroup vars
 	var overlayMaps = {
-		"Tech Companies Circa 1983": companyLayer,
-		"Plumes": plumeLayer,
+		"Old Tech Companies": companyLayer,
+		"Chemical Plumes": plumeLayer,
         "Daycare Facilities": daycareLayer
 		};
 		
@@ -170,7 +178,7 @@
 	var map = L.map('map', {
 		scrollWheelZoom:false,
 		layers: [plumeLayer]
-		}).setView([37.400819, -122.091567], 13);
+		}).setView([37.377633, -122.043330], 13);
             
 	//map tile from mapbox
 	L.mapbox.tileLayer('scottpham.i4aoobc5', {
@@ -199,7 +207,7 @@
    L.control.layers(null, overlayMaps, {collapsed: false}).addTo(map);
     
    newItem = document.createElement("H4");
-   newText = document.createTextNode("Click to select new map layers");
+   newText = document.createTextNode("Map Layers");
    newItem.appendChild(newText);
    x = document.getElementsByClassName("leaflet-control-layers-overlays");
    x[0].insertBefore(newItem, x[0].firstChild);
