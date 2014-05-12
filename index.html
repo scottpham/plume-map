@@ -78,7 +78,9 @@
 		<div class = "col-xs-12">
 			<h1>The Chemical Legacy of Old Silicon Valley</h1>
 			<p>This map shows the sites of toxic chemical "plumes" in Santa Clara County, CA. Toxic chemicals left by old Silicon Valley companies in the 1980s still remain in the earth. Some of those chemicals are still slowly rising through the soil and groundwater via a process called vapor intrusion. </p>
-            <p>The purple shapes represent areas of vapor intrusion. An environmentally-focused technology company called Terradex has calculated the geometry of these vapor intrusion sites using government data from a number of government agencies including the California Water Resources Control Board and the Environmental Protection Agency. Click the shapes for more information and toggle the layers to see the historical locations of old Silicon Valley companies from the era that produces many of these sites.</p>
+            <p>The purple shapes represent areas of vapor intrusion. An environmentally-focused technology company called Terradex has calculated the geometry of these vapor intrusion sites using government data from a number of government agencies including the California Water Resources Control Board and the Environmental Protection Agency. Click the shapes for more information and toggle the layers to see the historical locations of old Silicon Valley companies from the era that produced many of these sites.</p>
+            <p>Watch the full report by NBC Bay Area's Investigative Unit</p>
+            <p>Map by <a href="http://www.twitter.com/scottpham" target="_blank">Scott Pham</a></p>
 			<div id="map"></div>
 		</div>
 	</div>
@@ -99,10 +101,6 @@
         prefix: 'fa'
     });
     
-    companyIcon.iconSize = [5,95];
-    
-    
-    //companyIcon.extend()
    //Daycare Icon
     var daycareIcon = L.ExtraMarkers.icon({
         icon: 'glyphicon-home',
@@ -112,14 +110,12 @@
     });
     
    
-
-
 	//bind popup data
 	function onEachPlume(feature, layer) {
         layer.bindPopup('<h4>Groundwater Plume</h4>' + (
             (feature.properties.sitename)? '<p><strong>Name: ' + feature.properties.sitename + '</strong></p>': '')
              + '<p><em>The groundwater and soil here may contain chemicals hazardous to your health and safety.</em></p>' + (
-                 (feature.properties.plumeurl)? '<p>The State Water Resources Control Board has <a href="' + feature.properties.plumeurl + '" target="_blank">more information</a> about this specific plume.</p>':'')
+                 (feature.properties.plumeurl)? '<p>Government regulators have <a href="' + feature.properties.plumeurl + '" target="_blank">more information</a> about this specific plume.</p>':'')
               + '<small>Data courtesy of <a href="http://whatsdown.terradex.com/" target="_blank">Terradex.</a></small>');
     };
     
@@ -189,27 +185,15 @@
     attribution: 'Powered by Leaflet, Tiles from MapBox. Environmental data compiled by Terradex from government sources.'
 }).addTo(map);
 
-         //creates a "control" layer composed of the companies layer
+    //creates a "control" layer composed of the companies layer
         
 	var layerControl = L.control.layers(null, overlayMaps, {collapsed: false});
     
-    
-    /*  BEGIN CUSTOM TEXT CONTROL
-    layerControl.onAdd = function(map) {
-        this._div = L.DomUtil.create('div', 'info');
-        this.update();
-        return this._div;  
-    };
-    
-    layerControl.update = function (props) {
-        this._div.innerHTML = '<h4>Click to reveal different layers.</h4>';
-    }
-    
-   layerControl.addTo(map);
-    */
+ 
    
    L.control.layers(null, overlayMaps, {collapsed: false}).addTo(map);
-    
+   
+    //add title to layer control
    newItem = document.createElement("H4");
    newText = document.createTextNode("Map Layers");
    newItem.appendChild(newText);
